@@ -19,9 +19,33 @@ class State(Enum):
 
 class Codenames():
   with open("wordlist-eng.txt", "r") as f:
-    ganze_wortliste = f.readlines()
-    ganze_wortliste = [line.rstrip() for line in ganze_wortliste]
-  wortliste = random.sample(ganze_wortliste, 25)
+    full_wordlist = f.readlines()
+    full_wordlist = [line.rstrip() for line in full_wordlist]
+
+  def __init__(self):
+      """Creates a new instance of Hangman. The number of players can be varied using the num_player parameter."""
+      self.state = State.START
+      self.active_team = 0
+      # Rote Wörter rausfiltern
+      self.current_wordlist = random.sample(self.full_wordlist, 25)
+      wordlist = self.current_wordlist
+      self.red_words = random.sample(self.current_wordlist, 9)
+      self.update_list = set(self.red_words)
+      # Blaue Wörter rausfiltern
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      self.blue_words = random.sample(self.current_wordlist, 8)
+      self.update_list = set(self.blue_words)
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      # Weiße Wörter rausfiltern
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      self.white_words = random.sample(self.current_wordlist, 7)
+      self.update_list = set(self.white_words)
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      # Schwarzes Wort rausfiltern
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      self.black_word = random.sample(self.current_wordlist, 1)
+      self.update_list = set(self.black_word)
+      current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
 
   def run(self):
     """Starts the game."""
@@ -48,7 +72,7 @@ class Codenames():
 
       if self.state == State.PLAY_TURN:
         self.print_current_game_state()
-        response = self.ask_for_letter()
+        response = self.ask_for_word()
         self.state = self.evaluate_answer(response)
         continue
 
@@ -68,9 +92,26 @@ class Codenames():
   def prepare_round(self):
       """Prepares the next round by setting a new word to guess and resetting the guessed letters."""
       self.next_team()
-      self.word = random.choice(Hangman.possible_words).lower()
-      self.identified_letters = set()
-      self.wrong_letters = set()
+      # Rote Wörter rausfiltern
+      self.current_wordlist = random.sample(self.full_wordlist, 25)
+      wordlist = self.current_wordlist
+      self.red_words = random.sample(self.current_wordlist, 9)
+      self.update_list = set(self.red_words)
+      # Blaue Wörter rausfiltern
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      self.blue_words = random.sample(self.current_wordlist, 8)
+      self.update_list = set(self.blue_words)
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      # Weiße Wörter rausfiltern
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      self.white_words = random.sample(self.current_wordlist, 7)
+      self.update_list = set(self.white_words)
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      # Schwarzes Wort rausfiltern
+      self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+      self.black_word = random.sample(self.current_wordlist, 1)
+      self.update_list = set(self.black_word)
+      current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
 
   def explain_rules(self):
       """Prints an explanation of the rules."""
@@ -89,19 +130,23 @@ class Codenames():
 
   def print_current_game_state(self):
       """Prints letters already guessed, open letters and player scores."""
-      for i in range(5):
-        print("\t\t".join(wortliste[i * 5:i * 5 + 5]))
+      """ KOMMT!" """
 
   def spymaster(self):
+      """ KOMMT!" """
 
   def ask_for_word(self):
       """Prints a prompt to guess a word and returns the user's input."""
-      print(f"Team{self.active_team + 1} ist an der Reihe!")
+      if self.active_team == 0:
+          self.actual_active_team = str("Rot")
+      else:
+          self.actual_active_team = str("Blau")
+      print(f"Team{self.actual_active_team} ist an der Reihe!")
       print("Welches Wort rätst du?")
       return input(">").upper()
 
   def announce_winners(self):
-
+      """ KOMMT!" """
 
   def ask_to_play_again(self):
     """Asks the players whether they want to play again and returns the corresponding next game state."""
@@ -112,7 +157,7 @@ class Codenames():
       return State.END
 
   def determine_winners(self):
-
+      """ KOMMT!" """
 
 
 def main():
