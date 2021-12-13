@@ -1,8 +1,13 @@
 import random
 import os
 from enum import Enum
-import math
 import sys
+import requests
+api_url = 'http://api.conceptnet.io/'
+concept = 'c/' # '/r'
+lang = 'en/'
+
+cat = requests.get(api_url + concept + lang + 'cat').json()
 
 
 # https://www.delftstack.com/de/howto/python/python-clear-console/
@@ -26,7 +31,7 @@ class Codenames():
         full_wordlist = [line.rstrip() for line in full_wordlist]
 
     def __init__(self):
-        """Creates a new instance of Hangman. The number of players can be varied using the num_player parameter."""
+        """Creates a new instance of Codenames."""
         self.state = State.START
         self.active_team = 0
         self.current_wordlist = random.sample(self.full_wordlist, 25)
@@ -47,6 +52,9 @@ class Codenames():
         self.black_word = random.sample(self.current_wordlist, 1)
         self.update_list = set(self.black_word)
         self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        # Punktestände
+        self.red_score = 9
+        self.blue_score = 8
 
     def run(self):
         """Starts the game."""
@@ -91,8 +99,8 @@ class Codenames():
         self.active_team = (self.active_team + 1) % 2
 
     def prepare_round(self):
-        """Prepares the next round by setting a new word to guess and resetting the guessed letters."""
-        self.next_team()
+        """Prepares the next round."""
+        self.active_team = 0
         self.current_wordlist = random.sample(self.full_wordlist, 25)
         self.wordlist = self.current_wordlist
         # Rote Wörter rausfiltern
@@ -111,6 +119,9 @@ class Codenames():
         self.black_word = random.sample(self.current_wordlist, 1)
         self.update_list = set(self.black_word)
         self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        # Punktestände
+        self.red_score = 9
+        self.blue_score = 8
 
     def explain_rules(self):
         """Prints an explanation of the rules."""
@@ -135,11 +146,27 @@ class Codenames():
               "Viel Erfolg!\n")
 
     def print_current_game_state(self):
-        """Prints letters already guessed, open letters and player scores."""
-        """ KOMMT!" """
+        """Prints the wordlist and team scores."""
+        print(self.full_wordlist)
 
     def spymaster(self):
-        """ KOMMT!" """
+        if self.active_team == 0:
+            if len(self.red_words) > 0:
+                self.word_request = requests.get(api_url + concept + lang + random.choice(self.red_words)).json()
+            else:
+                self.announce_winners()
+        else:
+            if len(self.blue_words) > 0:
+                self.word_request = requests.get(api_url + concept + lang + random.choice(self.blue_words)).json()
+            else:
+                self.announce_winners()
+
+        y = []
+        self.edges = self.word_request["edges"]
+        for e in self.edges:
+            if e["rel"]["label"] == "RelatedTo":
+                y.append(e['end']['label'])
+        self.clue = y[0]
 
     def ask_for_word(self):
         """Prints a prompt to guess a word and returns the user's input."""
@@ -148,51 +175,55 @@ class Codenames():
         else:
             self.actual_active_team = str("Blau")
         print(f"Team{self.actual_active_team} ist an der Reihe!")
+        print("Clue: "+self.clue+" 1")
         print("Welches Wort rätst du?")
         return input(">").upper()
 
     def evaluate_answer(self, user_input: str):
-        """
-        Evaluates the given user input and returns the corresponding next game state.
-
-        If the user input is a single letter, it will be evaluated against the searched word and depending on the
-        validity, the game's state is updated.
-        If the user input is more than a single letter, it is interpreted as a command and appropriate actions are
-        performed, depending on the command.
-        """
         user_input = user_input.lower()
 
-        # some command was entered, instead of a letter
         if user_input not in self.wordlist:
-            if user_input == "lösen":
-                return State.REQUEST_SOLUTION
 
             if user_input == "regeln":
                 return State.DISPLAY_RULES
 
             clearConsole()
             print("Es sind nur Wörter aus der dargestellten Wortliste als Antwort möglich.")
-            print(self.wordlist)
             return State.PLAY_TURN
-        else:
-            print("yay")
 
-        # check guessed letter
+        # check guessed word
         clearConsole()
-        if user_input in self.wrong_letters.union(self.identified_letters):
-            print('Der Buchstabe wurde bereits geraten, versuche es mit einem anderen Buchstaben.')
-        elif user_input in self.word:
-            print("Gut geraten!")
-            self.identified_letters.add(user_input.lower())
+        """KOMMT!"""
+        self.next_team()
+
+        return State.PLAY_TURN
+
+        # check guessed word
+        clearConsole()
+        if self.active_team == 0:
+            if user_input in self.red_words:
+                self.red_words.remove(user_input)
+                self.red_score -= 1
+            elif user_input in self.blue_words:
+                self.blue_words.remove(user_input)
+                self.blue_score -= 1
+                self.next_team()
+            elif user_input in self.black_word:
+                self.announce_winners()
+            else:
+                self.next_team()
         else:
-            self.wrong_letters.add(user_input.lower())
-            print(f"Leider nein. Spieler{self.active_player + 1} bekommt {Hangman.WRONG_GUESS_PENALTY} Strafpunkt.")
-            print("Ihr habt bereits folgende Buchstaben falsch geraten:", ",".join(sorted(self.wrong_letters)))
-            print()
-
-            self.errors[self.active_player] += Hangman.WRONG_GUESS_PENALTY
-            self.next_player()
-
+            if user_input in self.blue_words:
+                self.blue_words.remove(user_input)
+                blue_score -= 1
+            elif user_input in self.red_words:
+                self.red_words.remove(user_input)
+                self.red_score -= 1
+                self.next_team()
+            elif user_input in self.black_word:
+                self.announce_winners()
+            else:
+                self.next_team()
         return State.PLAY_TURN
 
     def announce_winners(self):
