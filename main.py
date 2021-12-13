@@ -125,7 +125,14 @@ class Codenames():
               "Dieser besteht aus einem Begriff, der eine oder mehrere aufgelistete Wörter in Assoziation stellt.\n"
               "Wieviele Wörter zu erraten sind, teilt der Spymaster mit (bspw. Speed 2).\n"
               "Nach Abschluss des Zuges, ist das nächste Team an der Reihe.\n"
-              "Ein Team darf immer ein Mal mehr raten, als die Zahlvorgabe ist (Speed 2 -> 3 Mal raten).")
+              "Ein Team darf immer ein Mal mehr raten, als die Zahlvorgabe ist (Speed 2 -> 3 Mal raten)."
+              "Ist ein Team sich zu unsicher, darf es jederzeit aufhören zu raten und das nächste Team beginnt den Zug.\n"
+              "Mit dem Erraten der Wörter werden diese mit der Farbe des entsprechenden Agenten versehen - \n"
+              "Team Rot kann also auch Karten von Team Blau erraten und anders herum.\n"
+              "Unbeteiligte Zuschauer werden bei Erraten lediglich als solche gekennzeichnet.\n"
+              "Ziel ist es, als erstes Team alle eigenen Wörter bzw. Agenten korrekt gefunden zu haben.\n"
+              "Errät ein Team jedoch versehentlich den Attentäter, gewinnt automatisch das andere Team.\n"
+              "Viel Erfolg!\n")
 
     def print_current_game_state(self):
         """Prints letters already guessed, open letters and player scores."""
