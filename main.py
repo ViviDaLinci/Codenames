@@ -217,15 +217,18 @@ class Codenames():
                 self.wordlist.remove(user_input)
                 self.red_words.remove(user_input)
                 self.red_score -= 1
+                print(user_input, " war ein roter Agent!")
                 self.next_team()
             elif user_input in self.blue_words:
                 self.wordlist.remove(user_input)
                 self.blue_words.remove(user_input)
                 self.blue_score -= 1
+                print(user_input, " war ein blauer Agent!")
                 self.next_team()
             elif user_input in self.white_words:
                 self.wordlist.remove(user_input)
                 self.white_words.remove(user_input)
+                print(user_input, " war ein unbeteiliger Zuschauer!")
                 self.next_team()
             elif user_input in self.black_word:
                 self.wordlist.remove(user_input)
@@ -255,13 +258,13 @@ class Codenames():
         return State.PLAY_TURN
 
     def announce_winners(self):
-        print("Team " + self.actual_active_team + " gewinnt!")
+        print("Ihr habt alle Agenten identifiziert.\nTeam " + self.actual_active_team + " gewinnt!")
 
     def announce_winners2(self):
         if self.actual_active_team == "Rot":
-            print("Team Blau gewinnt!")
+            print("Ihr seid dem Attentäter zum Opfer gefallen.\nTeam Blau gewinnt!")
         else:
-            print("Team Rot gewinnt!")
+            print("Ihr seid dem Attentäter zum Opfer gefallen.\nTeam Rot gewinnt!")
 
     def ask_to_play_again(self):
         """Asks the players whether they want to play again and returns the corresponding next game state."""
