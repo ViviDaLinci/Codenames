@@ -3,6 +3,7 @@ import os
 from enum import Enum
 import sys
 import requests
+
 api_url = 'http://api.conceptnet.io/'
 concept = 'c/' # '/r'
 lang = 'en/'
@@ -22,6 +23,7 @@ class State(Enum):
     DISPLAY_RULES = 2,
     PLAY_TURN = 3,
     PLAY_AGAIN = 4,
+    GAME_OVER = 5
     END = -1,
 
 
@@ -34,24 +36,25 @@ class Codenames():
         """Creates a new instance of Codenames."""
         self.state = State.START
         self.active_team = 0
-        self.current_wordlist = random.sample(self.full_wordlist, 25)
-        self.wordlist = self.current_wordlist
+        """self.current_wordlist = random.sample(self.full_wordlist, 25)"""
+        self.ersatz_wordlist = ["cat", "room", "round", "paper", "club", "crown", "dance", "stone", "continent", "chocolate", "dress", "market", "game", "promise", "weather", "pain", "movie", "apple", "moon", "piano", "post", "trick", "brick", "blue", "chair"]
+        self.wordlist = self.ersatz_wordlist
         # Rote Wörter rausfiltern
-        self.red_words = random.sample(self.current_wordlist, 9)
+        self.red_words = random.sample(self.ersatz_wordlist, 9)
         self.update_list = set(self.red_words)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Blaue Wörter rausfiltern
-        self.blue_words = random.sample(self.current_wordlist, 8)
+        self.blue_words = random.sample(self.ersatz_wordlist, 8)
         self.update_list = set(self.blue_words)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Weiße Wörter rausfiltern
-        self.white_words = random.sample(self.current_wordlist, 7)
+        self.white_words = random.sample(self.ersatz_wordlist, 7)
         self.update_list = set(self.white_words)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Schwarzes Wort rausfiltern
-        self.black_word = random.sample(self.current_wordlist, 1)
+        self.black_word = random.sample(self.ersatz_wordlist, 1)
         self.update_list = set(self.black_word)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Punktestände
         self.red_score = 9
         self.blue_score = 8
@@ -61,6 +64,7 @@ class Codenames():
         self.state = State.START
         while True:
             if self.state == State.START:
+                clearConsole()
                 print("Hallo! Willkommen bei Codenames! Möchtest du erst die Regeln erfahren? (ja/nein)")
                 response = input('>')
                 if response.lower() == 'ja':
@@ -80,10 +84,17 @@ class Codenames():
                 continue
 
             if self.state == State.PLAY_TURN:
-                self.print_current_game_state()
-                response = self.ask_for_word()
-                self.state = self.evaluate_answer(response)
-                continue
+                if len(self.black_word) == 0:
+                    self.state = State.GAME_OVER
+                elif len(self.red_words) == 0:
+                    self.state = State.END
+                elif len(self.blue_words) == 0:
+                    self.state = State.END
+                else:
+                    self.print_current_game_state()
+                    response = self.ask_for_word()
+                    self.state = self.evaluate_answer(response)
+                    continue
 
             if self.state == State.PLAY_AGAIN:
                 self.state = self.ask_to_play_again()
@@ -91,8 +102,11 @@ class Codenames():
 
             if self.state == State.END:
                 self.announce_winners()
-                print("Okay! Bye-bye!")
-                sys.exit()
+                self.ask_to_play_again()
+
+            if self.state == State.GAME_OVER:
+                self.announce_winners2()
+                self.ask_to_play_again()
 
     def next_team(self):
         """Changes the active team."""
@@ -101,24 +115,27 @@ class Codenames():
     def prepare_round(self):
         """Prepares the next round."""
         self.active_team = 0
-        self.current_wordlist = random.sample(self.full_wordlist, 25)
-        self.wordlist = self.current_wordlist
+        """self.current_wordlist = random.sample(self.full_wordlist, 25)"""
+        self.ersatz_wordlist = ["cat", "room", "ball", "paper", "club", "crown", "dance", "stone", "continent",
+                                "chocolate", "dress", "market", "game", "promise", "weather", "pain", "movie", "apple",
+                                "moon", "piano", "post", "trick", "brick", "blue", "chair"]
+        self.wordlist = self.ersatz_wordlist
         # Rote Wörter rausfiltern
-        self.red_words = random.sample(self.current_wordlist, 9)
+        self.red_words = random.sample(self.ersatz_wordlist, 9)
         self.update_list = set(self.red_words)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Blaue Wörter rausfiltern
-        self.blue_words = random.sample(self.current_wordlist, 8)
+        self.blue_words = random.sample(self.ersatz_wordlist, 8)
         self.update_list = set(self.blue_words)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Weiße Wörter rausfiltern
-        self.white_words = random.sample(self.current_wordlist, 7)
+        self.white_words = random.sample(self.ersatz_wordlist, 7)
         self.update_list = set(self.white_words)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Schwarzes Wort rausfiltern
-        self.black_word = random.sample(self.current_wordlist, 1)
+        self.black_word = random.sample(self.ersatz_wordlist, 1)
         self.update_list = set(self.black_word)
-        self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
+        self.ersatz_wordlist = [x for x in self.ersatz_wordlist if x not in self.update_list]
         # Punktestände
         self.red_score = 9
         self.blue_score = 8
@@ -147,26 +164,25 @@ class Codenames():
 
     def print_current_game_state(self):
         """Prints the wordlist and team scores."""
-        print(self.full_wordlist)
+        print(self.wordlist)
+        print("Rote Wörter: ", self.red_score)
+        print("Blaue Wörter: ", self.blue_score)
 
     def spymaster(self):
         if self.active_team == 0:
-            if len(self.red_words) > 0:
-                self.word_request = requests.get(api_url + concept + lang + random.choice(self.red_words)).json()
-            else:
-                self.announce_winners()
+            self.word_request = requests.get(api_url + concept + lang + random.choice(self.red_words)).json()
+
         else:
-            if len(self.blue_words) > 0:
-                self.word_request = requests.get(api_url + concept + lang + random.choice(self.blue_words)).json()
-            else:
-                self.announce_winners()
+            self.word_request = requests.get(api_url + concept + lang + random.choice(self.blue_words)).json()
+
 
         y = []
         self.edges = self.word_request["edges"]
         for e in self.edges:
             if e["rel"]["label"] == "RelatedTo":
                 y.append(e['end']['label'])
-        self.clue = y[0]
+        clue = y[0]
+        return clue
 
     def ask_for_word(self):
         """Prints a prompt to guess a word and returns the user's input."""
@@ -174,9 +190,10 @@ class Codenames():
             self.actual_active_team = str("Rot")
         else:
             self.actual_active_team = str("Blau")
-        print(f"Team{self.actual_active_team} ist an der Reihe!")
-        print("Clue: "+self.clue+" 1")
-        print("Welches Wort rätst du?")
+        print(f"Team {self.actual_active_team} ist an der Reihe!")
+        test = self.spymaster()
+        print(test)
+        print("Welches Wort ratet ihr?")
         return input(">").upper()
 
     def evaluate_answer(self, user_input: str):
@@ -187,55 +204,73 @@ class Codenames():
             if user_input == "regeln":
                 return State.DISPLAY_RULES
 
-            clearConsole()
             print("Es sind nur Wörter aus der dargestellten Wortliste als Antwort möglich.")
-            return State.PLAY_TURN
 
         # check guessed word
-        clearConsole()
+        """clearConsole()"""
         """KOMMT!"""
-        self.next_team()
-
-        return State.PLAY_TURN
+        """self.next_team()"""
 
         # check guessed word
         clearConsole()
         if self.active_team == 0:
             if user_input in self.red_words:
+                self.wordlist.remove(user_input)
                 self.red_words.remove(user_input)
                 self.red_score -= 1
+                self.next_team()
             elif user_input in self.blue_words:
+                self.wordlist.remove(user_input)
                 self.blue_words.remove(user_input)
                 self.blue_score -= 1
                 self.next_team()
+            elif user_input in self.white_words:
+                self.wordlist.remove(user_input)
+                self.white_words.remove(user_input)
+                self.next_team()
             elif user_input in self.black_word:
-                self.announce_winners()
+                self.wordlist.remove(user_input)
+                self.black_word.remove(user_input)
             else:
                 self.next_team()
         else:
             if user_input in self.blue_words:
+                self.wordlist.remove(user_input)
                 self.blue_words.remove(user_input)
-                blue_score -= 1
+                self.blue_score -= 1
+                self.next_team()
             elif user_input in self.red_words:
+                self.wordlist.remove(user_input)
                 self.red_words.remove(user_input)
                 self.red_score -= 1
                 self.next_team()
+            elif user_input in self.white_words:
+                self.wordlist.remove(user_input)
+                self.white_words.remove(user_input)
+                self.next_team()
             elif user_input in self.black_word:
-                self.announce_winners()
+                self.wordlist.remove(user_input)
+                self.black_word.remove(user_input)
             else:
                 self.next_team()
         return State.PLAY_TURN
 
     def announce_winners(self):
-        """ KOMMT!" """
+        print("Team " + self.actual_active_team + " gewinnt!")
+
+    def announce_winners2(self):
+        if self.actual_active_team == "Rot":
+            print("Team Blau gewinnt!")
+        else:
+            print("Team Rot gewinnt!")
 
     def ask_to_play_again(self):
         """Asks the players whether they want to play again and returns the corresponding next game state."""
-        again = input("Möchtet ihr nochmal spielen? (ja/nein)")
+        again = input("Möchtet ihr nochmal spielen? (ja/nein)\n")
         if again.lower().strip() == "ja":
-            return State.PREPARE_ROUND
+            self.state = State.START
         else:
-            return State.END
+            sys.exit()
 
     def determine_winners(self):
         """ KOMMT!" """
