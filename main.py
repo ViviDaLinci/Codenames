@@ -191,8 +191,7 @@ class Codenames():
         else:
             self.actual_active_team = str("Blau")
         print(f"Team {self.actual_active_team} ist an der Reihe!")
-        test = self.spymaster()
-        print(test)
+        print(self.spymaster(), " 1")
         print("Welches Wort ratet ihr?")
         return input(">").upper()
 
