@@ -4,9 +4,10 @@ from enum import Enum
 import sys
 import requests
 from colorama import Fore
+import re
 
-api_url = "https://api.conceptnet.io/query?node=/c/en/"
-query = "&rel=/r/RelatedTo&offset=0&limit=50"
+api_url = 'http://api.conceptnet.io/related/c/en/'
+filter = '?filter=/c/en'
 
 # https://www.delftstack.com/de/howto/python/python-clear-console/
 def clearConsole():
@@ -37,121 +38,25 @@ class Codenames():
         for i in range(len(self.current_wordlist)):
             self.current_wordlist[i] = self.current_wordlist[i].lower()
         self.wordlist = self.current_wordlist
-        """Rote Wörter rausfiltern"""
+        # Rote Wörter rausfiltern
         self.red_words = random.sample(self.current_wordlist, 9)
         self.update_list = set(self.red_words)
         self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
-        """Blaue Wörter rausfiltern"""
+        # Blaue Wörter rausfiltern
         self.blue_words = random.sample(self.current_wordlist, 8)
         self.update_list = set(self.blue_words)
         self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
-        """Weiße Wörter rausfiltern"""
+        # Weiße Wörter rausfiltern
         self.white_words = random.sample(self.current_wordlist, 7)
         self.update_list = set(self.white_words)
         self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
-        """Schwarzes Wort rausfiltern"""
+        # Schwarzes Wort rausfiltern
         self.black_word = random.sample(self.current_wordlist, 1)
         self.update_list = set(self.black_word)
         self.current_wordlist = [x for x in self.current_wordlist if x not in self.update_list]
-        """Punktestände"""
+        # Punktestände
         self.red_score = 9
         self.blue_score = 8
-        """Bibliotheken anlegen"""
-        dict_red = {}
-        testarray_red = []
-        for i in self.red_words:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_red and " " not in word:
-                    testarray_red.append(word)
-
-            for ab in testarray_red:
-                isThere = dict_red.get(ab)
-                if isThere == None:
-                    dict_red[ab] = 1
-                else:
-                    oldValue = dict_red[ab]
-                    newValue = oldValue + 1
-                    dict_red[ab] = newValue
-        self.dict_red_sorted = sorted(dict_red.items(), key=lambda x: x[1], reverse=True)
-        self.dict_red_sorted_names = []
-        for i in self.dict_red_sorted:
-            self.dict_red_sorted_names.append(i[0])
-
-        dict_blue = {}
-        testarray_blue = []
-        for i in self.blue_words:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_blue and " " not in word:
-                    testarray_blue.append(word)
-
-            for ab in testarray_blue:
-                isThere = dict_blue.get(ab)
-                if isThere == None:
-                    dict_blue[ab] = 1
-                else:
-                    oldValue = dict_blue[ab]
-                    newValue = oldValue + 1
-                    dict_blue[ab] = newValue
-        self.dict_blue_sorted = sorted(dict_blue.items(), key=lambda x: x[1], reverse=True)
-        self.dict_blue_sorted_names = []
-        for i in self.dict_blue_sorted:
-            self.dict_blue_sorted_names.append(i[0])
-
-        dict_white = {}
-        testarray_white = []
-        for i in self.white_words:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_white and " " not in word:
-                    testarray_white.append(word)
-
-            for ab in testarray_white:
-                isThere = dict_white.get(ab)
-                if isThere == None:
-                    dict_white[ab] = 1
-                else:
-                    oldValue = dict_white[ab]
-                    newValue = oldValue + 1
-                    dict_white[ab] = newValue
-        self.dict_white_sorted = sorted(dict_white.items(), key=lambda x: x[1], reverse=True)
-        self.dict_white_sorted_names = []
-        for i in self.dict_white_sorted:
-            self.dict_white_sorted_names.append(i[0])
-
-        dict_black = {}
-        testarray_black = []
-        for i in self.black_word:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_black and " " not in word:
-                    testarray_black.append(word)
-
-            for ab in testarray_black:
-                isThere = dict_black.get(ab)
-                if isThere == None:
-                    dict_black[ab] = 1
-                else:
-                    oldValue = dict_black[ab]
-                    newValue = oldValue + 1
-                    dict_black[ab] = newValue
-        self.dict_black_sorted = sorted(dict_black.items(), key=lambda x: x[1], reverse=True)
-        self.dict_black_sorted_names = []
-        for i in self.dict_black_sorted:
-            self.dict_black_sorted_names.append(i[0])
 
     def run(self):
         """Starts the game."""
@@ -159,7 +64,7 @@ class Codenames():
         while True:
             if self.state == State.START:
                 clearConsole()
-                print("Hallo! Willkommen bei Codenames! Möchtest du erst die Regeln erfahren? (ja/nein)")
+                print(Fore.YELLOW + "Hallo! Willkommen bei Codenames! Möchtest du erst die Regeln erfahren? (ja/nein)")
                 response = input('>')
                 if response.lower() == 'ja':
                     self.state = State.DISPLAY_RULES
@@ -236,7 +141,7 @@ class Codenames():
     def explain_rules(self):
         """Prints an explanation of the rules."""
         clearConsole()
-        print("Herzlichen Glückwunsch! Ihr seid Ermittler eines Geheimdienstes und sucht nach Euren Agenten.\n"
+        print(Fore.YELLOW + "Herzlichen Glückwunsch! Ihr seid Ermittler eines Geheimdienstes und sucht nach Euren Agenten.\n"
               "Diese Agenten verstecken sich hinter den 25 aufgeführten Wörtern, die gleich zu sehen sind.\n"
               "Die Wortliste ist zufällig aufgeteilt in 9 rote Agenten, 8 blaue Agenten, 7 unbeteiligte Zuschauer und einen Attentäter, \n"
               "doch nur die Spymaster wissen, wer zu welchem Team gehört. \n"
@@ -258,8 +163,29 @@ class Codenames():
     def print_current_game_state(self):
         """Prints the wordlist and team scores."""
         print(self.wordlist)
-        print(Fore.RED + "Rote " + Fore.WHITE + "Agenten: ", self.red_score)
-        print(Fore.BLUE + "Blaue " + Fore.WHITE + "Agenten: ", self.blue_score)
+        print(Fore.RED + "Rote Agenten: ", self.red_score)
+        print(Fore.BLUE + "Blaue Agenten: ", self.blue_score)
+
+    def spymaster(self):
+        if self.active_team == 0:
+            self.word_request = requests.get(api_url + random.choice(self.red_words) + filter)
+            self.asJson = self.word_request.json()
+            self.return_related = self.asJson["related"]
+        else:
+            self.word_request = requests.get(api_url + random.choice(self.blue_words) + filter)
+            self.asJson = self.word_request.json()
+            self.return_related = self.asJson["related"]
+
+        testarray = []
+        currentNumber = 0
+        for x in self.return_related:
+            if (currentNumber < 10):
+                word = x["@id"]
+        regexGroup = re.match("(/c/en/)(\w+)", word)
+        testarray.append(regexGroup.group(2))
+        currentNumber += 1
+        clue = testarray[0]
+        return(clue)
 
     def ask_for_word(self):
         """Prints a prompt to guess a word and returns the user's input."""
@@ -267,24 +193,20 @@ class Codenames():
             self.actual_active_team = str("Rot")
         else:
             self.actual_active_team = str("Blau")
-        print(f"Team {self.actual_active_team} ist an der Reihe!")
-        if self.active_team == 0:
-            for x in self.dict_red_sorted:
-                """if x[0] not in self.red_words and x[0] not in self.dict_blue_sorted_names and x[0] not in self.dict_white_sorted_names and x[0] not in self.dict_black_sorted_names:"""
-                print(x)
-                break
-        print("Welches Wort ratet ihr?")
+        print(Fore.WHITE + f"Team {self.actual_active_team} ist an der Reihe!")
+        print(self.spymaster().replace("_", " "))
+        print(Fore.YELLOW + "Welches Wort ratet ihr?")
         return input(">").upper()
 
     def evaluate_answer(self, user_input: str):
-        ##user_input = user_input.lower()
+        user_input = user_input.lower()
 
-        ##if user_input not in self.wordlist:
+        if user_input not in self.wordlist:
 
-            ##if user_input == "regeln":
-                ##return State.DISPLAY_RULES
+            if user_input == "regeln":
+                return State.DISPLAY_RULES
 
-            ##print("Es sind nur Wörter aus der dargestellten Wortliste als Antwort möglich.")
+            print(Fore.YELLOW + "Es sind nur Wörter aus der dargestellten Wortliste als Antwort möglich.")
 
         # check guessed word
         """clearConsole()"""
@@ -298,18 +220,18 @@ class Codenames():
                 self.wordlist.remove(user_input)
                 self.red_words.remove(user_input)
                 self.red_score -= 1
-                print(user_input, " war ein roter Agent!")
+                print(Fore.YELLOW + user_input, " war ein roter Agent!")
                 self.next_team()
             elif user_input in self.blue_words:
                 self.wordlist.remove(user_input)
                 self.blue_words.remove(user_input)
                 self.blue_score -= 1
-                print(user_input, " war ein blauer Agent!")
+                print(Fore.YELLOW + user_input, " war ein blauer Agent!")
                 self.next_team()
             elif user_input in self.white_words:
                 self.wordlist.remove(user_input)
                 self.white_words.remove(user_input)
-                print(user_input, " war ein unbeteiliger Zuschauer!")
+                print(Fore.YELLOW + user_input, " war ein unbeteiliger Zuschauer!")
                 self.next_team()
             elif user_input in self.black_word:
                 self.wordlist.remove(user_input)
@@ -339,13 +261,13 @@ class Codenames():
         return State.PLAY_TURN
 
     def announce_winners(self):
-        print("Ihr habt alle Agenten identifiziert.\nTeam " + self.actual_active_team + " gewinnt!")
+        print(Fore.YELLOW + "Ihr habt alle Agenten identifiziert.\nTeam " + self.actual_active_team + " gewinnt!")
 
     def announce_winners2(self):
         if self.actual_active_team == "Rot":
-            print("Ihr seid dem Attentäter zum Opfer gefallen.\nTeam Blau gewinnt!")
+            print(Fore.YELLOW + "Ihr seid dem Attentäter zum Opfer gefallen.\nTeam Blau gewinnt!")
         else:
-            print("Ihr seid dem Attentäter zum Opfer gefallen.\nTeam Rot gewinnt!")
+            print(Fore.YELLOW + "Ihr seid dem Attentäter zum Opfer gefallen.\nTeam Rot gewinnt!")
 
     def ask_to_play_again(self):
         """Asks the players whether they want to play again and returns the corresponding next game state."""

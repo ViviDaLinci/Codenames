@@ -27,47 +27,41 @@ black_word = random.sample(current_wordlist, 1)
 update_list = set(black_word)
 current_wordlist = [x for x in current_wordlist if x not in update_list]
 
-api_url = "https://api.conceptnet.io/query?node=/c/en/"
-query = "&rel=/r/RelatedTo&offset=0&limit=1000"
-
-dict_red = {}
-testarray_red = []
-for i in red_words:
-    response = requests.get(api_url + i + query)
+def abfragen(word):
+    api_url = "https://api.conceptnet.io/query?node=/c/en/"
+    query = "&rel=/r/RelatedTo&offset=0&limit=1000"
+    query_word = word
+    response = requests.get(api_url + query_word + query)
     asJson = response.json()
     related = asJson["edges"]
+
+    testarray = []
     for x in related:
         word = x["end"]["label"]
-        if word != i and word not in testarray_red and " " not in word:
-            testarray_red.append(word)
+        if word != query_word and word not in testarray and " " not in word:
+            testarray.append(word)
+    return testarray
 
-    for ab in testarray_red:
+
+dict_red = {}
+for i in red_words:
+    abfrage = abfragen(i)
+    for ab in abfrage:
         isThere = dict_red.get(ab)
-        if isThere == None:
+        if (isThere == None):
             dict_red[ab] = 1
         else:
             oldValue = dict_red[ab]
             newValue = oldValue + 1
             dict_red[ab] = newValue
 dict_red_sorted = sorted(dict_red.items(), key=lambda x: x[1], reverse=True)
-dict_red_sorted_names = []
-for i in dict_red_sorted:
-    dict_red_sorted_names.append(i[0])
 
 dict_blue = {}
-testarray_blue = []
 for i in blue_words:
-    response = requests.get(api_url + i + query)
-    asJson = response.json()
-    related = asJson["edges"]
-    for x in related:
-        word = x["end"]["label"]
-        if word != i and word not in testarray_blue and " " not in word:
-            testarray_blue.append(word)
-
-    for ab in testarray_blue:
+    abfrage = abfragen(i)
+    for ab in abfrage:
         isThere = dict_blue.get(ab)
-        if isThere == None:
+        if (isThere == None):
             dict_blue[ab] = 1
         else:
             oldValue = dict_blue[ab]
@@ -79,19 +73,11 @@ for i in dict_blue_sorted:
     dict_blue_sorted_names.append(i[0])
 
 dict_white = {}
-testarray_white = []
 for i in white_words:
-    response = requests.get(api_url + i + query)
-    asJson = response.json()
-    related = asJson["edges"]
-    for x in related:
-        word = x["end"]["label"]
-        if word != i and word not in testarray_white and " " not in word:
-            testarray_white.append(word)
-
-    for ab in testarray_white:
+    abfrage = abfragen(i)
+    for ab in abfrage:
         isThere = dict_white.get(ab)
-        if isThere == None:
+        if (isThere == None):
             dict_white[ab] = 1
         else:
             oldValue = dict_white[ab]
@@ -103,19 +89,11 @@ for i in dict_white_sorted:
     dict_white_sorted_names.append(i[0])
 
 dict_black = {}
-testarray_black = []
 for i in black_word:
-    response = requests.get(api_url + i + query)
-    asJson = response.json()
-    related = asJson["edges"]
-    for x in related:
-        word = x["end"]["label"]
-        if word != i and word not in testarray_black and " " not in word:
-            testarray_black.append(word)
-
-    for ab in testarray_black:
+    abfrage = abfragen(i)
+    for ab in abfrage:
         isThere = dict_black.get(ab)
-        if isThere == None:
+        if (isThere == None):
             dict_black[ab] = 1
         else:
             oldValue = dict_black[ab]
