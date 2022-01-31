@@ -55,6 +55,9 @@ for i in red_words:
             newValue = oldValue + 1
             dict_red[ab] = newValue
 dict_red_sorted = sorted(dict_red.items(), key=lambda x: x[1], reverse=True)
+dict_red_sorted_names = []
+for i in dict_red_sorted:
+    dict_red_sorted_names.append(i[0])
 
 dict_blue = {}
 for i in blue_words:

@@ -29,13 +29,13 @@ current_wordlist = [x for x in current_wordlist if x not in update_list]
 
 api_url = "https://api.conceptnet.io/query?node=/c/en/"
 query = "&rel=/r/RelatedTo&offset=0&limit=1000"
-
+print()
 dict_red = {}
-testarray_red = []
 for i in red_words:
     response = requests.get(api_url + i + query)
     asJson = response.json()
     related = asJson["edges"]
+    testarray_red = []
     for x in related:
         word = x["end"]["label"]
         if word != i and word not in testarray_red and " " not in word:

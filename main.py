@@ -13,6 +13,20 @@ def clearConsole():
     command = 'clear' if os.name not in ('nt', 'dos') else 'cls'  # If Machine is running on Windows, use cls
     os.system(command)
 
+def abfragen(word):
+    api_url = "https://api.conceptnet.io/query?node=/c/en/"
+    query = "&rel=/r/RelatedTo&offset=0&limit=1000"
+    query_word = word
+    response = requests.get(api_url + query_word + query)
+    asJson = response.json()
+    related = asJson["edges"]
+
+    testarray = []
+    for x in related:
+        word = x["end"]["label"]
+        if word != query_word and word not in testarray and " " not in word:
+            testarray.append(word)
+    return testarray
 
 class State(Enum):
     START = 0,
@@ -58,19 +72,11 @@ class Codenames():
         self.blue_score = 8
         """Bibliotheken anlegen"""
         dict_red = {}
-        testarray_red = []
         for i in self.red_words:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_red and " " not in word:
-                    testarray_red.append(word)
-
-            for ab in testarray_red:
+            abfrage = abfragen(i)
+            for ab in abfrage:
                 isThere = dict_red.get(ab)
-                if isThere == None:
+                if isThere is None:
                     dict_red[ab] = 1
                 else:
                     oldValue = dict_red[ab]
@@ -82,19 +88,11 @@ class Codenames():
             self.dict_red_sorted_names.append(i[0])
 
         dict_blue = {}
-        testarray_blue = []
         for i in self.blue_words:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_blue and " " not in word:
-                    testarray_blue.append(word)
-
-            for ab in testarray_blue:
+            abfrage = abfragen(i)
+            for ab in abfrage:
                 isThere = dict_blue.get(ab)
-                if isThere == None:
+                if isThere is None:
                     dict_blue[ab] = 1
                 else:
                     oldValue = dict_blue[ab]
@@ -106,19 +104,11 @@ class Codenames():
             self.dict_blue_sorted_names.append(i[0])
 
         dict_white = {}
-        testarray_white = []
         for i in self.white_words:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_white and " " not in word:
-                    testarray_white.append(word)
-
-            for ab in testarray_white:
+            abfrage = abfragen(i)
+            for ab in abfrage:
                 isThere = dict_white.get(ab)
-                if isThere == None:
+                if isThere is None:
                     dict_white[ab] = 1
                 else:
                     oldValue = dict_white[ab]
@@ -130,19 +120,11 @@ class Codenames():
             self.dict_white_sorted_names.append(i[0])
 
         dict_black = {}
-        testarray_black = []
         for i in self.black_word:
-            response = requests.get(api_url + i + query)
-            asJson = response.json()
-            related = asJson["edges"]
-            for x in related:
-                word = x["end"]["label"]
-                if word != i and word not in testarray_black and " " not in word:
-                    testarray_black.append(word)
-
-            for ab in testarray_black:
+            abfrage = abfragen(i)
+            for ab in abfrage:
                 isThere = dict_black.get(ab)
-                if isThere == None:
+                if isThere is None:
                     dict_black[ab] = 1
                 else:
                     oldValue = dict_black[ab]
@@ -270,8 +252,8 @@ class Codenames():
         print(f"Team {self.actual_active_team} ist an der Reihe!")
         if self.active_team == 0:
             for x in self.dict_red_sorted:
-                """if x[0] not in self.red_words and x[0] not in self.dict_blue_sorted_names and x[0] not in self.dict_white_sorted_names and x[0] not in self.dict_black_sorted_names:"""
-                print(x)
+                if x[0] not in self.red_words and x[0] not in self.dict_blue_sorted_names and x[0] not in self.dict_white_sorted_names and x[0] not in self.dict_black_sorted_names:
+                    print(x)
                 break
         print("Welches Wort ratet ihr?")
         return input(">").upper()
