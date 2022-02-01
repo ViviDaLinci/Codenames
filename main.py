@@ -144,8 +144,10 @@ class Codenames():
                 print("Hallo! Willkommen bei Codenames! Möchtest du erst die Regeln erfahren? (ja/nein)")
                 response = input('>')
                 if response.lower() == 'ja':
+                    clearConsole()
                     self.state = State.DISPLAY_RULES
                 else:
+                    clearConsole()
                     self.state = State.PREPARE_ROUND
                 continue
 
@@ -167,9 +169,8 @@ class Codenames():
                 elif len(self.blue_words) == 0:
                     self.state = State.END
                 else:
-                    self.print_current_game_state()
-                    response = self.ask_for_word()
-                    self.state = self.evaluate_answer(response)
+                    response, clue_anzahl = self.ask_for_word()
+                    self.state = self.evaluate_answer(response, clue_anzahl)
                     continue
 
             if self.state == State.PLAY_AGAIN:
@@ -217,7 +218,6 @@ class Codenames():
 
     def explain_rules(self):
         """Prints an explanation of the rules."""
-        clearConsole()
         print("Herzlichen Glückwunsch! Ihr seid Ermittler eines Geheimdienstes und sucht nach Euren Agenten.\n"
               "Diese Agenten verstecken sich hinter den 25 aufgeführten Wörtern, die gleich zu sehen sind.\n"
               "Die Wortliste ist zufällig aufgeteilt in 9 rote Agenten, 8 blaue Agenten, 7 unbeteiligte Zuschauer und einen Attentäter, \n"
@@ -245,80 +245,92 @@ class Codenames():
 
     def ask_for_word(self):
         """Prints a prompt to guess a word and returns the user's input."""
+        """Wer ist dran?"""
         if self.active_team == 0:
             self.actual_active_team = str("Rot")
         else:
             self.actual_active_team = str("Blau")
-        print(f"Team {self.actual_active_team} ist an der Reihe!")
+        """Clue generieren."""
         if self.active_team == 0:
-            for x in self.dict_red_sorted:
-                if x[0] not in self.red_words and x[0] not in self.dict_blue_sorted_names and x[0] not in self.dict_white_sorted_names and x[0] not in self.dict_black_sorted_names:
-                    print(x)
-                break
-        print("Welches Wort ratet ihr?")
-        return input(">").upper()
-
-    def evaluate_answer(self, user_input: str):
-        ##user_input = user_input.lower()
-
-        ##if user_input not in self.wordlist:
-
-            ##if user_input == "regeln":
-                ##return State.DISPLAY_RULES
-
-            ##print("Es sind nur Wörter aus der dargestellten Wortliste als Antwort möglich.")
-
-        # check guessed word
-        """clearConsole()"""
-        """KOMMT!"""
-        """self.next_team()"""
-
-        # check guessed word
-        clearConsole()
-        if self.active_team == 0:
-            if user_input in self.red_words:
-                self.wordlist.remove(user_input)
-                self.red_words.remove(user_input)
-                self.red_score -= 1
-                print(user_input, " war ein roter Agent!")
-                self.next_team()
-            elif user_input in self.blue_words:
-                self.wordlist.remove(user_input)
-                self.blue_words.remove(user_input)
-                self.blue_score -= 1
-                print(user_input, " war ein blauer Agent!")
-                self.next_team()
-            elif user_input in self.white_words:
-                self.wordlist.remove(user_input)
-                self.white_words.remove(user_input)
-                print(user_input, " war ein unbeteiliger Zuschauer!")
-                self.next_team()
-            elif user_input in self.black_word:
-                self.wordlist.remove(user_input)
-                self.black_word.remove(user_input)
-            else:
-                self.next_team()
+            self.print_current_game_state()
+            print(f"Team {self.actual_active_team} ist an der Reihe!")
+            for clue in self.dict_red_sorted:
+                if clue[0] not in self.red_words and clue[0] not in self.blue_words and clue[0] not in self.white_words and clue[0] not in self.black_word and clue[0] not in self.dict_blue_sorted_names and clue[0] not in self.dict_white_sorted_names and clue[0] not in self.dict_black_sorted_names:
+                    clue_wort = clue[0]
+                    clue_anzahl = clue[1]
+                    print("Hinweis:", clue_wort, clue_anzahl)
+                    break
         else:
-            if user_input in self.blue_words:
-                self.wordlist.remove(user_input)
-                self.blue_words.remove(user_input)
-                self.blue_score -= 1
-                self.next_team()
-            elif user_input in self.red_words:
-                self.wordlist.remove(user_input)
-                self.red_words.remove(user_input)
-                self.red_score -= 1
-                self.next_team()
-            elif user_input in self.white_words:
-                self.wordlist.remove(user_input)
-                self.white_words.remove(user_input)
-                self.next_team()
-            elif user_input in self.black_word:
-                self.wordlist.remove(user_input)
-                self.black_word.remove(user_input)
+            self.print_current_game_state()
+            print(f"Team {self.actual_active_team} ist an der Reihe!")
+            for clue in self.dict_blue_sorted:
+                if clue[0] not in self.red_words and clue[0] not in self.blue_words and clue[0] not in self.white_words and clue[0] not in self.black_word and clue[0] not in self.dict_red_sorted_names and clue[0] not in self.dict_white_sorted_names and clue[0] not in self.dict_black_sorted_names:
+                    clue_wort = clue[0]
+                    clue_anzahl = clue[1]
+                    print("Hinweis:", clue_wort, clue_anzahl)
+                    break
+
+        print("Welches Wort ratet ihr?")
+        return input(">").lower(), clue_anzahl
+
+    def evaluate_answer(self, user_input: str, clue_anzahl: int):
+        versuche = clue_anzahl
+        if user_input not in self.red_words and user_input not in self.blue_words and user_input not in self.white_words and user_input not in self.black_word:
+            if user_input == "regeln":
+                return State.DISPLAY_RULES
             else:
-                self.next_team()
-        return State.PLAY_TURN
+                clearConsole()
+                print("Es sind nur Wörter aus der dargestellten Wortliste als Antwort möglich.")
+                self.ask_for_word()
+        else:
+            if self.active_team == 0:
+                if user_input in self.red_words:
+                    self.wordlist.remove(user_input)
+                    self.red_words.remove(user_input)
+                    self.red_score -= 1
+                    clearConsole()
+                    print(user_input, " war ein roter Agent!")
+                    print("")
+                elif user_input in self.blue_words:
+                    self.wordlist.remove(user_input)
+                    self.blue_words.remove(user_input)
+                    self.blue_score -= 1
+                    clearConsole()
+                    print(user_input, " war ein blauer Agent!")
+                    print("")
+                    self.next_team()
+                elif user_input in self.white_words:
+                    self.wordlist.remove(user_input)
+                    self.white_words.remove(user_input)
+                    clearConsole()
+                    print(user_input, " war ein unbeteiliger Zuschauer!")
+                    print("")
+                    self.next_team()
+                elif user_input in self.black_word:
+                    self.wordlist.remove(user_input)
+                    self.black_word.remove(user_input)
+                else:
+                    self.next_team()
+            else:
+                if user_input in self.blue_words:
+                    self.wordlist.remove(user_input)
+                    self.blue_words.remove(user_input)
+                    self.blue_score -= 1
+                elif user_input in self.red_words:
+                    self.wordlist.remove(user_input)
+                    self.red_words.remove(user_input)
+                    self.red_score -= 1
+                    self.next_team()
+                elif user_input in self.white_words:
+                    self.wordlist.remove(user_input)
+                    self.white_words.remove(user_input)
+                    self.next_team()
+                elif user_input in self.black_word:
+                    self.wordlist.remove(user_input)
+                    self.black_word.remove(user_input)
+                else:
+                    self.next_team()
+            return State.PLAY_TURN
 
     def announce_winners(self):
         print("Ihr habt alle Agenten identifiziert.\nTeam " + self.actual_active_team + " gewinnt!")
