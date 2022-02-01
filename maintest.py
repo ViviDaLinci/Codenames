@@ -128,5 +128,11 @@ for i in dict_black_sorted:
 
 for x in dict_red_sorted:
     if x[0] not in red_words and x[0] not in dict_blue_sorted_names and x[0] not in dict_white_sorted_names and x[0] not in dict_black_sorted_names:
-        print(x)
+        print(x[0])
         break
+
+print("Nicht sorted")
+print(dict_red)
+
+print("Sorted")
+print(dict_black_sorted)
