@@ -230,8 +230,8 @@ class Codenames():
         """Prints the wordlist and team scores."""
         print(self.wordlist)
         print("")
-        print(Fore.RED + "Red " + Fore.WHITE + "agents: ", self.red_score)
-        print(Fore.BLUE + "Blue " + Fore.WHITE + "agents: ", self.blue_score)
+        print(Fore.RED + "Red" + Fore.WHITE + " agents: ", self.red_score)
+        print(Fore.BLUE + "Blue" + Fore.WHITE + " agents: ", self.blue_score)
         print("")
 
     def ask_for_word(self):
