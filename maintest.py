@@ -129,7 +129,7 @@ class Codenames():
         while True:
             if self.state == State.START:
                 clearConsole()
-                print("Hello! Welcome to Codegames! Would you like to read the rules? (yes/no)")
+                print("Hello! Welcome to Codenames! Would you like to read the rules? (yes/no)")
                 response = input('>')
                 if response.lower() == 'yes':
                     clearConsole()
