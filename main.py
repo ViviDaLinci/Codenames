@@ -109,7 +109,6 @@ class Codenames():
                     dict_white[ab] = newValue
         self.dict_white_sorted = sorted(dict_white.items(), key=lambda x: x[1], reverse=True)
 
-
         dict_black = {}
         for i in self.black_word:
             abfrage = abfragen(i)
@@ -122,6 +121,11 @@ class Codenames():
                     newValue = oldValue + 1
                     dict_black[ab] = newValue
         self.dict_black_sorted = sorted(dict_black.items(), key=lambda x: x[1], reverse=True)
+
+        """Erratene Wörter festhalten"""
+        self.red_words_guessed = []
+        self.blue_words_guessed = []
+        self.white_words_guessed = []
 
     def run(self):
         """Starts the game."""
@@ -230,8 +234,8 @@ class Codenames():
         """Prints the wordlist and team scores."""
         print(self.wordlist)
         print("")
-        print(Fore.RED + "Red " + Fore.WHITE + "agents: ", self.red_score)
-        print(Fore.BLUE + "Blue " + Fore.WHITE + "agents: ", self.blue_score)
+        print(Fore.RED + "Red " + Fore.RESET + "agents: ", self.red_score)
+        print(Fore.BLUE + "Blue " + Fore.RESET + "agents: ", self.blue_score)
         print("")
 
     def ask_for_word(self):
@@ -246,26 +250,26 @@ class Codenames():
         """Clue generieren."""
         if self.active_team == 0:
             self.print_current_game_state()
-            print(Fore.RED + "Red " + Fore.WHITE + "turn! (Enter 'e' to end your turn)")
+            print(Fore.RED + "Red " + Fore.RESET + "turn! (Enter 'e' to end your turn)")
             for clue in self.dict_red_sorted:
                 if clue[0] not in self.red_words and clue[0] not in self.blue_words and clue[0] not in self.white_words and clue[0] not in self.black_word and clue[0] not in self.dict_blue_sorted and clue[0] not in self.dict_white_sorted and clue[0] not in self.dict_black_sorted:
                     clue_wort = clue[0]
                     clue_anzahl = clue[1]
-                    print("Clue:", Fore.YELLOW, clue_wort, clue_anzahl, Fore.WHITE)
+                    print("Clue:", Fore.YELLOW, clue_wort, clue_anzahl, Fore.RESET)
                     print("")
                     break
         else:
             self.print_current_game_state()
-            print(Fore.BLUE + "Blue " + Fore.WHITE + "turn! (Enter 'e' to end your turn)")
+            print(Fore.BLUE + "Blue " + Fore.RESET + "turn! (Enter 'e' to end your turn)")
             for clue in self.dict_blue_sorted:
                 if clue[0] not in self.red_words and clue[0] not in self.blue_words and clue[0] not in self.white_words and clue[0] not in self.black_word and clue[0] not in self.dict_red_sorted and clue[0] not in self.dict_white_sorted and clue[0] not in self.dict_black_sorted:
                     clue_wort = clue[0]
                     clue_anzahl = clue[1]
-                    print("Clue:", Fore.YELLOW, clue_wort, clue_anzahl, Fore.WHITE)
+                    print("Clue:", Fore.YELLOW, clue_wort, clue_anzahl, Fore.RESET)
                     print("")
                     break
 
-        print(Fore.WHITE, "What's your guess?")
+        print(Fore.RESET, "What's your guess?")
         return clue
 
     def evaluate_answer(self, clue):
@@ -276,13 +280,13 @@ class Codenames():
                 clearConsole()
                 self.print_current_game_state()
                 if self.active_team == 0:
-                    print(Fore.RED + "Red " + Fore.WHITE + "turn! (Enter 'e' to end your turn)")
+                    print(Fore.RED + "Red " + Fore.RESET + "turn! (Enter 'e' to end your turn)")
                 else:
-                    print(Fore.BLUE + "Blue " + Fore.WHITE + "turn! (Enter 'e' to end your turn)")
-                print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.WHITE)
+                    print(Fore.BLUE + "Blue " + Fore.RESET + "turn! (Enter 'e' to end your turn)")
+                print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.RESET)
                 print("")
                 print("Invalid Guess. Try again.")
-                print(Fore.WHITE, "")
+                print(Fore.RESET, "")
             elif user_input == "e":
                 clearConsole()
                 self.print_current_game_state()
@@ -297,14 +301,14 @@ class Codenames():
                         versuche -= 1
                         clearConsole()
                         self.print_current_game_state()
-                        print(Fore.RED + "Red " + Fore.WHITE + "turn! (Enter 'e' to end your turn)")
-                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.WHITE)
+                        print(Fore.RED + "Red " + Fore.RESET + "turn! (Enter 'e' to end your turn)")
+                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.RESET)
                         print("")
                         if versuche != 1:
-                            print("Awesome, ", user_input, " was a", Fore.RED, "red agent!", Fore.WHITE, versuche, "tries remaining.")
+                            print("Awesome, ", user_input, " was a", Fore.RED, "red agent!", Fore.RESET, versuche, "tries remaining.")
                         else:
-                            print("Awesome, ", user_input, " was a", Fore.RED, "red agent!", Fore.WHITE, versuche, "try remaining.")
-                        print(Fore.WHITE, "")
+                            print("Awesome, ", user_input, " was a", Fore.RED, "red agent!", Fore.RESET, versuche, "try remaining.")
+                        print(Fore.RESET, "")
                         if versuche == 0:
                             self.next_team()
                     elif user_input in self.blue_words:
@@ -314,10 +318,10 @@ class Codenames():
                         versuche -= versuche
                         clearConsole()
                         self.print_current_game_state()
-                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.WHITE)
+                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.RESET)
                         print("")
                         print("Damn, ", user_input, " was a", Fore.BLUE, "blue agent!")
-                        print(Fore.WHITE, "")
+                        print(Fore.RESET, "")
                         self.next_team()
                     elif user_input in self.white_words:
                         self.wordlist.remove(user_input)
@@ -328,11 +332,11 @@ class Codenames():
                         print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.BLACK)
                         print("")
                         print("Whoopsie, ", user_input, " was an innocent bystander!")
-                        print(Fore.WHITE, "")
+                        print(Fore.RESET, "")
                         self.next_team()
                     elif user_input in self.black_word:
                         clearConsole()
-                        print("The assassin killed you!\nTeam", Fore.BLUE, "Blue", Fore.WHITE, "wins!")
+                        print("The assassin killed you!\nTeam", Fore.BLUE, "Blue", Fore.RESET, "wins!")
                         versuche -= versuche
                         self.ask_to_play_again()
                 elif self.active_team == 1:
@@ -343,14 +347,14 @@ class Codenames():
                         versuche -= 1
                         clearConsole()
                         self.print_current_game_state()
-                        print(Fore.BLUE + "Blue " + Fore.WHITE + "turn! (Enter 'e' to end your turn)")
-                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.WHITE)
+                        print(Fore.BLUE + "Blue " + Fore.RESET + "turn! (Enter 'e' to end your turn)")
+                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.RESET)
                         print("")
                         if versuche != 1:
-                            print("Awesome, ", user_input, " was a", Fore.BLUE, "blue agent!", Fore.WHITE, versuche, "tries remaining.")
+                            print("Awesome, ", user_input, " was a", Fore.BLUE, "blue agent!", Fore.RESET, versuche, "tries remaining.")
                         else:
-                            print("Awesome, ", user_input, " was a", Fore.BLUE, "blue agent!", Fore.WHITE, versuche, "try remaining.")
-                        print(Fore.WHITE, "")
+                            print("Awesome, ", user_input, " was a", Fore.BLUE, "blue agent!", Fore.RESET, versuche, "try remaining.")
+                        print(Fore.RESET, "")
                         if versuche == 0:
                             self.next_team()
                     elif user_input in self.red_words:
@@ -360,10 +364,10 @@ class Codenames():
                         versuche -= versuche
                         clearConsole()
                         self.print_current_game_state()
-                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.WHITE)
+                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.RESET)
                         print("")
                         print("Damn, ", user_input, " was a", Fore.RED, "red agent!")
-                        print(Fore.WHITE, "")
+                        print(Fore.RESET, "")
                         self.next_team()
                     elif user_input in self.white_words:
                         self.wordlist.remove(user_input)
@@ -371,14 +375,14 @@ class Codenames():
                         versuche -= versuche
                         clearConsole()
                         self.print_current_game_state()
-                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.WHITE)
+                        print("Clue:", Fore.YELLOW, clue[0], clue[1], Fore.RESET)
                         print("")
                         print("Whoopsie, ", user_input, " was an innocent bystander!")
-                        print(Fore.WHITE, "")
+                        print(Fore.RESET, "")
                         self.next_team()
                     elif user_input in self.black_word:
                         clearConsole()
-                        print("The assassin killed you!\nTeam", Fore.RED, "Red", Fore.WHITE, "wins!")
+                        print("The assassin killed you!\nTeam", Fore.RED, "Red", Fore.RESET, "wins!")
                         versuche -= versuche
                         self.ask_to_play_again()
 
